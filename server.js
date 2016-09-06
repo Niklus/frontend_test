@@ -9,9 +9,11 @@ var bodyParser = require('body-parser');
 //Body Parser
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// set up view engine
-app.set('views', './views');
-app.set('view engine', 'pug');
+// set up handlebars view engine
+var handlebars = require('express-handlebars')
+  .create({ defaultLayout:'main' });
+app.engine('handlebars', handlebars.engine);
+app.set('view engine', 'handlebars');
 
 // set port
 app.set('port', process.env.PORT || 3000);
@@ -44,8 +46,10 @@ app.post('/', function filter(req, res) {
   res.send(recipes);
 });
 
-
-
+app.get('/recipes', function(req, res) {
+  
+  res.send(jsonArray);
+});
 
 // 404 catch-all handler (middleware)
 app.use(function(req, res, next){

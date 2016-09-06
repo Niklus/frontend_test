@@ -1,5 +1,5 @@
 'use strict';
-
+var $list = $('#list');
 
 function filterByIngredients(input){ 
     
@@ -15,11 +15,24 @@ function filterByIngredients(input){
 }
 
 
-function updatediv(data){    
-    var $list = $('#list').html('');
+function updateList(data){    
+    $list.html('');
     data.forEach(function(obj){      
 	    $list.append($('<li>').text(obj.name)); 
-	});   
+	}); 
+
+	if(!$list.text()){
+	  $list.append($('<li>').text('Sorry Try Again')); 
+	}
+}
+
+function refresh(){
+	$list.html('');
+	$.getJSON("/recipes", function(json) { 
+	  json.forEach(function(obj){      
+	    $list.append($('<li>').text(obj.name)); 
+	  });
+	});
 }
 
 //Events
@@ -30,4 +43,8 @@ $input.on('keypress', function (event) {
 	  filterByIngredients(input); 
 	  $input.val('');
 	}
+});
+
+$('#refresh').on('click', function (event) {           	  
+	refresh();
 });
