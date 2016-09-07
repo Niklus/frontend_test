@@ -50,24 +50,37 @@ app.post('/selections', function(req, res) {
   
   var selection = req.body.selection;
   
-  var ingredients = [];
-
-  selection.forEach(function(select){
-    
-      jsonArray.forEach(function(obj){
-             
-      if(select == obj.name) {
-        obj.ingredients.forEach(function(el){
-          ingredients.push(el);
-        });                            
-      } 
+  if (typeof(selection) !== 'undefined') {
+  
+    var ingredients = [];
+    selection.forEach(function(select){
+      
+        jsonArray.forEach(function(obj){
+               
+        if(select == obj.name) {
+          obj.ingredients.forEach(function(el){
+            ingredients.push(el);
+          });                            
+        } 
+      });
     });
-  });
   
-  var response = ingredients.sort();//Remove Duplicates before sending
+    //Remove duplicates
+    var newArr = ingredients.sort();   
 
-  res.send(response);
-  
+    for(var i=0; i<newArr.length; i++){
+      if (newArr[i] == newArr[i + 1]){
+        delete  newArr[i];
+      }
+    }
+
+    var filtered = newArr.filter(function(val){
+      return val;
+    });
+    
+    res.send(filtered);
+  }
+
 });
 
 // 404 catch-all handler (middleware)

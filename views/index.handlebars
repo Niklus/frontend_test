@@ -2,14 +2,15 @@
 
 <input id='filter' placeholder='Filter by ingredient'>
 <button id='refresh'>Reset</button>
-<button id="submitBtn">Submit</button>
+<button id="submitBtn">Ingridients</button>
 
 <div class="row">
-	<div class= 'col-xs-6 col-sm-6 col-lg-6'>
+	<div class= 'col-xs-8 col-sm-8 col-lg-8'>
 		
 		<ul id="list"> 
 		  {{#each recipes}}
 		    <li>{{this.name}}: {{this.type}}, {{this.cook_time}} min</li>
+		    
 		    <img src='/img/{{this.name}}.jpg'>	        
 		    <input type="checkbox" value="{{this.name}}" name='recipeCheckbox'>
 		  {{/each}}
@@ -17,7 +18,7 @@
 
 	</div>
 
-	<div class= 'col-xs-6 col-sm-6 col-lg-6'>
+	<div class= 'col-xs-4 col-sm-4 col-lg-4'>
          <ol id='ingredients'></ol>
 	</div>
 </div>

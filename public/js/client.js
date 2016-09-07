@@ -1,92 +1,119 @@
 'use strict';
-var $list = $('#list');
-var $ingredients = $('#ingredients');
+
+var model = {
+
+	postRequest: function(url,data,callback) {
+    	$.ajax({            
+		    type: 'POST',   
+		    url: url,
+		    data: data,
+		    success: function (res){  
+	           callback(res);
+		    }
+        });
+	},
+
+	getRequest: function(url,callback) {
+		$.ajax({            
+		    type: 'GET',   
+		    url: url,
+		    success: function (res){  
+	           callback(res);
+		    }
+        });
+	}
+
+};
+
+var controller = {
+
+	filterByIngredients: function(input) {
+	    var data = {input: input};
+	    model.postRequest('/', data, view.updateView);
+	},
+
+	getIngredients: function(selection){
+    	var data = {selection: selection};
+    	model.postRequest('/selections', data, view.updateIngredients);
+    },
+
+    refresh: function(){
+		model.getRequest('/recipes',view.updateView);
+	}
+};
 
 
-function updateIngredients(data){    
-    $ingredients.html('');
-    data.forEach(function(item){      
-	    $ingredients.append($('<li>').text(item)); 
-	}); 
-}
+var view = {
 
-function filterByIngredients(input){ 
-   
-    var data = {input: input};
-	$.ajax({            
-	    type: 'POST',   
-	    url: '/',
-	    data: data,
-	    success: function(data){  
-           updateList(data);
-	    }
-    });
-}
-
-function updateList(data){    
+	updateView: function(data){    
     
-    $list.html('');
-    data.forEach(function(obj){      
-	    $list.append($('<li>').text(obj.name+': '+obj.type+', '+obj.cook_time+' min')); 
-        $list.append($('<img>').attr('src','/img/'+obj.name+'.jpg'));
-        $list.append($('<input>').attr({
-	    	type: 'checkbox',
-	    	value: obj.name,
-	    	name: 'recipeCheckbox'
-	    }));
-	}); 
+	    var $list = $('#list').html('');
+	    $('#ingredients').html('');
 
-	if(!$list.text()){
-	  $list.append($('<li>').text('Sorry Try Again')); 
+	    data.forEach(function(obj){      
+		    $list.append($('<li>').text(obj.name+': '+obj.type+', '+obj.cook_time+' min')); 
+	        $list.append($('<img>').attr('src','/img/'+obj.name+'.jpg'));
+	        $list.append($('<input>').attr({
+		    	type: 'checkbox',
+		    	value: obj.name,
+		    	name: 'recipeCheckbox'
+		    }));
+		}); 
+
+		if(!$list.text()){
+		  $list.append($('<li>').text('Sorry Try Again')); 
+		}
+	},
+
+	updateIngredients: function(data) {
+
+		var $ingredients = $('#ingredients').html('');
+	   
+	    data.forEach(function(item){      
+		    $ingredients.append($('<li>').text(item)); 
+		}); 
+	},
+
+	setUpEventListeners: function(){
+
+		var $input = $('#filter');   
+		
+		$input.on('keypress', function (event) { 
+			var input = $input.val();      
+			if(event.keyCode === 13 && input){            
+		  		controller.filterByIngredients(input); 
+		  		$input.val('');
+			}
+		});
+
+		$('#refresh').on('click', function (event) {           	  
+			controller.refresh();
+		});
+
+		$('#submitBtn').on('click', function(event){
+		    	
+			var selection = [];
+
+		    $("input[name='recipeCheckbox']:checked").each(function(){ 
+		    	selection.push($(this).val());
+		    });
+		    
+		    controller.getIngredients(selection);
+		});
 	}
-}
+};
 
-function refresh(){
-	$list.html('');
-	$.getJSON("/recipes", function(data) { 
-	  data.forEach(function(obj){      
-	    $list.append($('<li>').text(obj.name+': '+obj.type+', '+obj.cook_time+' min')); 
-	    $list.append($('<img>').attr('src','/img/'+obj.name+'.jpg'));
-	    $list.append($('<input>').attr({
-	    	type: 'checkbox',
-	    	value: obj.name,
-	    	name: 'recipeCheckbox'
-	    }));
-	  });
-	});
-}
+view.setUpEventListeners();
 
 
-//Events
-var $input = $('#filter');   
-$input.on('keypress', function (event) { 
-	var input = $input.val();      
-	if(event.keyCode === 13 && input){            
-	  filterByIngredients(input); 
-	  $input.val('');
-	}
-});
 
-$('#refresh').on('click', function (event) {           	  
-	$ingredients.html('');
-	refresh();
-});
 
-$('#submitBtn').on('click', function(event){
-    	
-	var selection = [];
 
-    $("input[name='recipeCheckbox']:checked").each(function(){ //Find a better way
-    	selection.push($(this).val());
-    });
 
-    $.ajax({            
-	    type: 'POST',   
-	    url: '/selections',
-	    data: {selection: selection},
-	    success: function(data){  
-           updateIngredients(data);
-	    }
-    });
 
-});
+
+
+
+
+
+

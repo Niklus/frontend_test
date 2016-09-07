@@ -6,5 +6,8 @@ ul li{
 
 }
 img{
-	width: 60%;
+	width: 30%;
+}
+ol {
+	list-style-type: lower-alpha;
 }
