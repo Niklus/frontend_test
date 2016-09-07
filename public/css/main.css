@@ -1,3 +1,10 @@
-li{
+body{
+	font-size: 20px;
+}
+ul li{
 	list-style-type: none;
+
+}
+img{
+	width: 60%;
 }

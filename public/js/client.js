@@ -1,12 +1,21 @@
 'use strict';
 var $list = $('#list');
+var $ingredients = $('#ingredients');
+
+
+function updateIngredients(data){    
+    $ingredients.html('');
+    data.forEach(function(item){      
+	    $ingredients.append($('<li>').text(item)); 
+	}); 
+}
 
 function filterByIngredients(input){ 
-    
+   
     var data = {input: input};
 	$.ajax({            
 	    type: 'POST',   
-	    url: 'http://localhost:3000',
+	    url: '/',
 	    data: data,
 	    success: function(data){  
            updateList(data);
@@ -14,11 +23,17 @@ function filterByIngredients(input){
     });
 }
 
-
 function updateList(data){    
+    
     $list.html('');
     data.forEach(function(obj){      
-	    $list.append($('<li>').text(obj.name)); 
+	    $list.append($('<li>').text(obj.name+': '+obj.type+', '+obj.cook_time+' min')); 
+        $list.append($('<img>').attr('src','/img/'+obj.name+'.jpg'));
+        $list.append($('<input>').attr({
+	    	type: 'checkbox',
+	    	value: obj.name,
+	    	name: 'recipeCheckbox'
+	    }));
 	}); 
 
 	if(!$list.text()){
@@ -28,12 +43,19 @@ function updateList(data){
 
 function refresh(){
 	$list.html('');
-	$.getJSON("/recipes", function(json) { 
-	  json.forEach(function(obj){      
-	    $list.append($('<li>').text(obj.name)); 
+	$.getJSON("/recipes", function(data) { 
+	  data.forEach(function(obj){      
+	    $list.append($('<li>').text(obj.name+': '+obj.type+', '+obj.cook_time+' min')); 
+	    $list.append($('<img>').attr('src','/img/'+obj.name+'.jpg'));
+	    $list.append($('<input>').attr({
+	    	type: 'checkbox',
+	    	value: obj.name,
+	    	name: 'recipeCheckbox'
+	    }));
 	  });
 	});
 }
+
 
 //Events
 var $input = $('#filter');   
@@ -46,5 +68,25 @@ $input.on('keypress', function (event) {
 });
 
 $('#refresh').on('click', function (event) {           	  
+	$ingredients.html('');
 	refresh();
+});
+
+$('#submitBtn').on('click', function(event){
+    	
+	var selection = [];
+
+    $("input[name='recipeCheckbox']:checked").each(function(){ //Find a better way
+    	selection.push($(this).val());
+    });
+
+    $.ajax({            
+	    type: 'POST',   
+	    url: '/selections',
+	    data: {selection: selection},
+	    success: function(data){  
+           updateIngredients(data);
+	    }
+    });
+
 });

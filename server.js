@@ -23,18 +23,15 @@ app.use(express.static(__dirname + '/public'));
 
 // routes
 app.get('/', function(req, res) {
-
   res.render('index', { 
     title: 'Recipes', 
     recipes: jsonArray
   });
 });
 
-app.post('/', function filter(req, res) {
-
+app.post('/', function(req, res) {
   var input = req.body.input;
   var recipes = [];
-
   jsonArray.forEach(function(obj){
     obj.ingredients.forEach(function(el){       
       if(input.toLowerCase() == el.toLowerCase()) {
@@ -42,13 +39,35 @@ app.post('/', function filter(req, res) {
       }
     });   
   });
-
   res.send(recipes);
 });
 
-app.get('/recipes', function(req, res) {
-  
+app.get('/recipes', function(req, res) {  
   res.send(jsonArray);
+});
+
+app.post('/selections', function(req, res) {
+  
+  var selection = req.body.selection;
+  
+  var ingredients = [];
+
+  selection.forEach(function(select){
+    
+      jsonArray.forEach(function(obj){
+             
+      if(select == obj.name) {
+        obj.ingredients.forEach(function(el){
+          ingredients.push(el);
+        });                            
+      } 
+    });
+  });
+  
+  var response = ingredients.sort();//Remove Duplicates before sending
+
+  res.send(response);
+  
 });
 
 // 404 catch-all handler (middleware)
