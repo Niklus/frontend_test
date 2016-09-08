@@ -17,7 +17,7 @@ var model = {
 		$.ajax({            
 		    type: 'GET',   
 		    url: url,
-		    success: function (res){  
+		    success: function (res){ 
 	           callback(res);
 		    }
         });
@@ -29,17 +29,22 @@ var controller = {
 
 	filterByIngredients: function(input) {
 	    var data = {input: input};
-	    model.postRequest('/', data, view.updateView);
+	    model.postRequest('/filtered_recipes', data, view.updateView);
 	},
 
 	getIngredients: function(selection){
     	var data = {selection: selection};
-    	model.postRequest('/selections', data, view.updateIngredients);
+    	model.postRequest('/selections', data, view.addIngredients);
     },
 
-    refresh: function(){
-		model.getRequest('/recipes',view.updateView);
-	}
+    getRecipes: function(){
+		model.getRequest('/all_recipes',view.updateView);
+	},
+
+	removeIngredients: function(selection){
+		var selection = '.'+selection;
+		view.removeIngredients(selection);
+	},
 };
 
 
@@ -51,12 +56,12 @@ var view = {
 	    $('#ingredients').html('');
 
 	    data.forEach(function(obj){      
-		    $list.append($('<li>').text(obj.name+': '+obj.type+', '+obj.cook_time+' min')); 
+		    
+		    $list.append($('<li>').text(obj.name+': '+obj.type+', '+obj.cook_time+' min'));
 	        $list.append($('<img>').attr('src','/img/'+obj.name+'.jpg'));
 	        $list.append($('<input>').attr({
 		    	type: 'checkbox',
-		    	value: obj.name,
-		    	name: 'recipeCheckbox'
+		    	value: obj.name
 		    }));
 		}); 
 
@@ -65,13 +70,21 @@ var view = {
 		}
 	},
 
-	updateIngredients: function(data) {
+	addIngredients: function(data) {
 
-		var $ingredients = $('#ingredients').html('');
-	   
-	    data.forEach(function(item){      
-		    $ingredients.append($('<li>').text(item)); 
-		}); 
+		var $ingredients = $('#ingredients');
+	    data.ingredients.forEach(function(item){
+          
+          var $newList = $('<li>').attr('class',data.name);
+          $newList.text(item);
+
+		  $ingredients.append($newList); 
+
+	    }); 
+	},
+
+	removeIngredients: function(selection){
+	    $(selection).remove();
 	},
 
 	setUpEventListeners: function(){
@@ -79,33 +92,39 @@ var view = {
 		var $input = $('#filter');   
 		
 		$input.on('keypress', function (event) { 
+			
 			var input = $input.val();      
+			
 			if(event.keyCode === 13 && input){            
+		  		
 		  		controller.filterByIngredients(input); 
+		  		
 		  		$input.val('');
 			}
 		});
 
 		$('#refresh').on('click', function (event) {           	  
-			controller.refresh();
+			controller.getRecipes();
 		});
 
-		$('#submitBtn').on('click', function(event){
-		    	
-			var selection = [];
+        $("#list").on('change',function(event){
+	      
+	      	var selection = event.target.value;
+			
+			if(event.target.checked){
 
-		    $("input[name='recipeCheckbox']:checked").each(function(){ 
-		    	selection.push($(this).val());
-		    });
-		    
-		    controller.getIngredients(selection);
-		});
+				controller.getIngredients(selection);
+			  
+			}else{
+				controller.removeIngredients(selection);          
+			}
+	    });
 	}
 };
 
 view.setUpEventListeners();
 
-
+controller.getRecipes();
 
 
 

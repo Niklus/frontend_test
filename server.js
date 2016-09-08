@@ -23,13 +23,10 @@ app.use(express.static(__dirname + '/public'));
 
 // routes
 app.get('/', function(req, res) {
-  res.render('index', { 
-    title: 'Recipes', 
-    recipes: jsonArray
-  });
+  res.render('index');
 });
 
-app.post('/', function(req, res) {
+app.post('/filtered_recipes', function(req, res) {
   var input = req.body.input;
   var recipes = [];
   jsonArray.forEach(function(obj){
@@ -42,7 +39,7 @@ app.post('/', function(req, res) {
   res.send(recipes);
 });
 
-app.get('/recipes', function(req, res) {  
+app.get('/all_recipes', function(req, res) {  
   res.send(jsonArray);
 });
 
@@ -51,36 +48,14 @@ app.post('/selections', function(req, res) {
   var selection = req.body.selection;
   
   if (typeof(selection) !== 'undefined') {
-  
-    var ingredients = [];
-    selection.forEach(function(select){
-      
-        jsonArray.forEach(function(obj){
-               
-        if(select == obj.name) {
-          obj.ingredients.forEach(function(el){
-            ingredients.push(el);
-          });                            
-        } 
-      });
-    });
-  
-    //Remove duplicates
-    var newArr = ingredients.sort();   
-
-    for(var i=0; i<newArr.length; i++){
-      if (newArr[i] == newArr[i + 1]){
-        delete  newArr[i];
-      }
-    }
-
-    var filtered = newArr.filter(function(val){
-      return val;
-    });
     
-    res.send(filtered);
+    jsonArray.forEach(function(obj){
+           
+      if(selection == obj.name) {
+        res.send(obj);                            
+      } 
+    });
   }
-
 });
 
 // 404 catch-all handler (middleware)
