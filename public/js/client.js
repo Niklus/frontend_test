@@ -2,25 +2,34 @@
 
 var model = {
 
-	postRequest: function(url,data,callback) {
-    	$.ajax({            
-		    type: 'POST',   
+	makeRequest: function(type,url,data,callback){
+		$.ajax({            
+		    type: type,   
 		    url: url,
 		    data: data,
 		    success: function (res){  
 	           callback(res);
+	           console.log(res);
 		    }
         });
 	},
 
-	getRequest: function(url,callback) {
-		$.ajax({            
-		    type: 'GET',   
-		    url: url,
-		    success: function (res){ 
-	           callback(res);
-		    }
-        });
+	filterByIngredients: function(data) {
+
+		var url = '/filtered_recipes';   
+        this.makeRequest('POST',url,data,view.updateView)
+	},
+
+	getIngredients: function(data) {
+    	
+	    var url = '/selections';
+	    this.makeRequest('POST',url,data,view.addIngredients);
+	},
+
+	getRecipes: function() {
+		
+       var url = '/all_recipes';
+       this.makeRequest('GET',url,undefined,view.updateView);
 	}
 
 };
@@ -29,20 +38,20 @@ var controller = {
 
 	filterByIngredients: function(input) {
 	    var data = {input: input};
-	    model.postRequest('/filtered_recipes', data, view.updateView);
+	    model.filterByIngredients(data);
 	},
 
 	getIngredients: function(selection){
+    	
     	var data = {selection: selection};
-    	model.postRequest('/selections', data, view.addIngredients);
+    	model.getIngredients(data);
     },
 
     getRecipes: function(){
-		model.getRequest('/all_recipes',view.updateView);
+		model.getRecipes();
 	},
 
 	removeIngredients: function(selection){
-		var selection = '.'+selection;
 		view.removeIngredients(selection);
 	},
 };
@@ -55,53 +64,77 @@ var view = {
 	    var $list = $('#list').html('');
 	    $('#ingredients').html('');
 
-	    data.forEach(function(obj){      
-		    
-		    $list.append($('<li>').text(obj.name+': '+obj.type+', '+obj.cook_time+' min'));
-	        $list.append($('<img>').attr('src','/img/'+obj.name+'.jpg'));
-	        $list.append($('<input>').attr({
+	    data.forEach(function(obj){  
+
+	        var $container = $('<div>'); 
+		   
+		    $container.append($('<p>').text(obj.name+': '+obj.type+', '+obj.cook_time+' min'));
+		   
+		    var $div1 = $('<div>').attr('class','picDiv');
+		    var $div2 = $('<div>').attr('class','listDiv');
+
+	        $div1.append($('<input>').attr({
 		    	type: 'checkbox',
-		    	value: obj.name
+		    	value: obj.name,
+		    	class: 'check'
 		    }));
+
+		    $div1.append($('<img>').attr('src','/img/'+obj.name+'.jpg'));
+		    
+		    $div2.append($('<ol>').attr('id',obj.name));
+		    
+		    $container.append($div1);
+		    $container.append($div2);
+            $list.append($container);
+
 		}); 
 
 		if(!$list.text()){
-		  $list.append($('<li>').text('Sorry Try Again')); 
+		  $list.append($('<p>').text('Sorry Try Again')); 
 		}
 	},
 
 	addIngredients: function(data) {
+        
 
-		var $ingredients = $('#ingredients');
+        var $select = $('#'+data.name);
+		
 	    data.ingredients.forEach(function(item){
           
           var $newList = $('<li>').attr('class',data.name);
           $newList.text(item);
-
-		  $ingredients.append($newList); 
-
+		  $select.append($newList); 
 	    }); 
 	},
 
-	removeIngredients: function(selection){
-	    $(selection).remove();
+	removeIngredients: function(selector){
+	    $('.'+selector).remove();
 	},
 
 	setUpEventListeners: function(){
 
-		var $input = $('#filter');   
+		var $input = $('#filter');
+		  
 		
 		$input.on('keypress', function (event) { 
-			
-			var input = $input.val();      
-			
+            
+            var input = $input.val();
+
 			if(event.keyCode === 13 && input){            
-		  		
 		  		controller.filterByIngredients(input); 
-		  		
 		  		$input.val('');
 			}
 		});
+        
+        $('#search').on('click',function(event) {
+            
+            var input = $input.val();
+
+        	if(input){            
+		  		controller.filterByIngredients(input);
+		  		$input.val('');
+			}
+        });
 
 		$('#refresh').on('click', function (event) {           	  
 			controller.getRecipes();
@@ -109,12 +142,10 @@ var view = {
 
         $("#list").on('change',function(event){
 	      
-	      	var selection = event.target.value;
-			
+	      	var selection = event.target.value;	
 			if(event.target.checked){
 
-				controller.getIngredients(selection);
-			  
+				controller.getIngredients(selection);	  
 			}else{
 				controller.removeIngredients(selection);          
 			}

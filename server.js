@@ -1,10 +1,7 @@
 var express = require('express');
 var app = express();
-var fs = require('fs');
-var jsonFile = fs.readFileSync("recipes.json");
-var jsonArray = JSON.parse(jsonFile);
 var bodyParser = require('body-parser');
-
+var routes = require('./routes/index');
 
 //Body Parser
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -22,41 +19,9 @@ app.set('port', process.env.PORT || 3000);
 app.use(express.static(__dirname + '/public'));
 
 // routes
-app.get('/', function(req, res) {
-  res.render('index');
-});
+app.use('/', routes);
 
-app.post('/filtered_recipes', function(req, res) {
-  var input = req.body.input;
-  var recipes = [];
-  jsonArray.forEach(function(obj){
-    obj.ingredients.forEach(function(el){       
-      if(input.toLowerCase() == el.toLowerCase()) {
-        recipes.push(obj);                            
-      }
-    });   
-  });
-  res.send(recipes);
-});
-
-app.get('/all_recipes', function(req, res) {  
-  res.send(jsonArray);
-});
-
-app.post('/selections', function(req, res) {
-  
-  var selection = req.body.selection;
-  
-  if (typeof(selection) !== 'undefined') {
-    
-    jsonArray.forEach(function(obj){
-           
-      if(selection == obj.name) {
-        res.send(obj);                            
-      } 
-    });
-  }
-});
+// Error handlers
 
 // 404 catch-all handler (middleware)
 app.use(function(req, res, next){

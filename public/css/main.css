@@ -1,13 +1,29 @@
 body{
 	font-size: 20px;
+	
 }
-ul li{
-	list-style-type: none;
+h1{
+   
+}
+input{
+	text-align: center;
 
 }
+
 img{
 	width: 30%;
 }
-ol {
+ol li{
 	list-style-type: lower-alpha;
+
+}
+.check{
+  position: absolute;
+}
+.picDiv{
+	
+}
+.listDiv{
+	
+	
 }

@@ -42,7 +42,7 @@
         "ingredients": ["Masa", "Water", "Queso Fresco"]
     },
     {
-        "name": "Fried Rice",
+        "name": "Fried_Rice",
         "type": "Chinese",
         "cook_time": 28,
         "ingredients": ["Onion", "Oil", "Rice", "Egg", "Soy Sauce", "Sesame Oil", "Chicken", "Carrot", "Peas"]
