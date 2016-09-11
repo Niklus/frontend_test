@@ -1,29 +1,68 @@
 body{
-	font-size: 20px;
-	
+	font-size: 17px;
+	margin-top: 30px;
+	font-family: cursive;
+	background-color: #555;
 }
-h1{
-   
-}
-input{
-	text-align: center;
 
+header{
+	margin-bottom: 30px;
+}
+
+h1{
+	text-align: center; 
+	font-family: 'Londrina Shadow', cursive;
+	font-size: 110px;
+	color: white;
+}
+
+.recipes{
+	margin-top: 10px;
+}
+
+p{
+	font-size: 20px;
+}
+
+.well{
+	margin: 0 auto;
+	background-color: #fed; 
+}
+
+#filter{
+	width: 60%;
+    margin: auto;
+    display: flex;
 }
 
 img{
-	width: 30%;
+	float: left;
 }
+
+.detailsDiv{
+	float: left;
+	margin-left: 5px;
+}
+
+.listDiv{
+	clear: both;
+}
+
+img{
+	width: 50%;
+	margin: 0 auto; 
+}
+
 ol li{
 	list-style-type: lower-alpha;
-
 }
+
 .check{
   position: absolute;
 }
-.picDiv{
-	
-}
-.listDiv{
-	
-	
+
+footer{
+	margin-top: 30px;
+	text-align: center;
+	color: white;
 }

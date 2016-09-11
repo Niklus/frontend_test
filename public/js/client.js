@@ -9,7 +9,6 @@ var model = {
 		    data: data,
 		    success: function (res){  
 	           callback(res);
-	           console.log(res);
 		    }
         });
 	},
@@ -28,10 +27,26 @@ var model = {
 
 	getRecipes: function() {
 		
-       var url = '/all_recipes';
-       this.makeRequest('GET',url,undefined,view.updateView);
-	}
+   		var url = '/all_recipes';
+        this.makeRequest('GET',url,undefined,view.updateView);
+	},
 
+	storeSelections: function(selection){
+           
+        localStorage.setItem(selection, selection);
+	},
+
+	deleteSelections: function(selection){
+		
+        var keys = Object.keys(localStorage);
+        var key = keys.find(key => localStorage[key] === selection);
+
+        localStorage.removeItem(key);
+	},
+
+	clearSelections: function() {
+        localStorage.clear();
+	}
 };
 
 var controller = {
@@ -45,6 +60,8 @@ var controller = {
     	
     	var data = {selection: selection};
     	model.getIngredients(data);
+    	
+    	model.storeSelections(selection);
     },
 
     getRecipes: function(){
@@ -53,7 +70,12 @@ var controller = {
 
 	removeIngredients: function(selection){
 		view.removeIngredients(selection);
+        model.deleteSelections(selection);
 	},
+
+	clearSelections: function(){
+		model.clearSelections();
+	}
 };
 
 
@@ -66,12 +88,10 @@ var view = {
 
 	    data.forEach(function(obj){  
 
-	        var $container = $('<div>'); 
-		   
-		    $container.append($('<p>').text(obj.name+': '+obj.type+', '+obj.cook_time+' min'));
-		   
+	        var $container = $('<div>').attr('class','recipes col-md-6 col-sm-6 col-xs-12'); 	   
 		    var $div1 = $('<div>').attr('class','picDiv');
 		    var $div2 = $('<div>').attr('class','listDiv');
+		    var $div3 = $('<div>').attr('class','detailsDiv');
 
 	        $div1.append($('<input>').attr({
 		    	type: 'checkbox',
@@ -79,14 +99,19 @@ var view = {
 		    	class: 'check'
 		    }));
 
-		    $div1.append($('<img>').attr('src','/img/'+obj.name+'.jpg'));
-		    
+		    $div1.append($('<img class="img-rounded">').attr('src','/img/'+obj.name+'.jpg'));
+
+            $div3.append($('<p>').text(obj.name+'..'));
+            $div3.append($('<p>').text(obj.type+'..'));
+            $div3.append($('<p>').text(obj.cook_time+' min'));
+            
+            $div1.append($div3);
+
 		    $div2.append($('<ol>').attr('id',obj.name));
 		    
 		    $container.append($div1);
 		    $container.append($div2);
             $list.append($container);
-
 		}); 
 
 		if(!$list.text()){
@@ -115,7 +140,6 @@ var view = {
 
 		var $input = $('#filter');
 		  
-		
 		$input.on('keypress', function (event) { 
             
             var input = $input.val();
@@ -125,27 +149,13 @@ var view = {
 		  		$input.val('');
 			}
 		});
-        
-        $('#search').on('click',function(event) {
-            
-            var input = $input.val();
-
-        	if(input){            
-		  		controller.filterByIngredients(input);
-		  		$input.val('');
-			}
-        });
-
-		$('#refresh').on('click', function (event) {           	  
-			controller.getRecipes();
-		});
 
         $("#list").on('change',function(event){
 	      
 	      	var selection = event.target.value;	
 			if(event.target.checked){
 
-				controller.getIngredients(selection);	  
+				controller.getIngredients(selection);
 			}else{
 				controller.removeIngredients(selection);          
 			}
@@ -154,8 +164,9 @@ var view = {
 };
 
 view.setUpEventListeners();
-
 controller.getRecipes();
+
+
 
 
 
