@@ -2,13 +2,13 @@
 
 var model = {
 
-	makeRequest: function(type,url,data,callback){
+	updateView: function(type,url,data){
 		$.ajax({            
 		    type: type,   
 		    url: url,
 		    data: data,
-		    success: function (res){  
-	           callback(res);
+		    success: function (res){    
+               view.updateView(res)
 		    }
         });
 	},
@@ -16,33 +16,55 @@ var model = {
 	filterByIngredients: function(data) {
 
 		var url = '/filtered_recipes';   
-        this.makeRequest('POST',url,data,view.updateView)
+        this.updateView('POST',url,data)
+	},
+
+    getRecipes: function() {
+		
+   		var url = '/all_recipes';
+        this.updateView('GET',url);
 	},
 
 	getIngredients: function(data) {
     	
 	    var url = '/selections';
-	    this.makeRequest('POST',url,data,view.addIngredients);
+	 
+        $.ajax({            
+		    type: 'POST',   
+		    url: url,
+		    data: data,
+		    success: function (res){    
+               view.addIngredients(res);
+               model.storeSelection(res);
+		    }
+        });
 	},
 
-	getRecipes: function() {
-		
-   		var url = '/all_recipes';
-        this.makeRequest('GET',url,undefined,view.updateView);
+	storeSelection: function(obj){
+
+        var data = JSON.parse(localStorage.selection);
+
+        data.push(obj.name);
+
+        localStorage.selection = JSON.stringify(data);
+    },
+
+	deleteSelections: function(name){
+
+		var data = JSON.parse(localStorage.selection);
+
+		function notName(value) {
+           return value != name;
+        }
+        
+        var filtered = data.filter(notName);
+
+		localStorage.selection = JSON.stringify(filtered);
 	},
 
-	storeSelections: function(selection){
-           
-        localStorage.setItem(selection, selection);
-	},
-
-	deleteSelections: function(selection){
-		
-        var keys = Object.keys(localStorage);
-        var key = keys.find(key => localStorage[key] === selection);
-
-        localStorage.removeItem(key);
-	},
+    getData: function() {
+        return JSON.parse(localStorage.selection);
+    },
 
 	clearSelections: function() {
         localStorage.clear();
@@ -56,12 +78,9 @@ var controller = {
 	    model.filterByIngredients(data);
 	},
 
-	getIngredients: function(selection){
-    	
+	getIngredients: function(selection){	
     	var data = {selection: selection};
     	model.getIngredients(data);
-    	
-    	model.storeSelections(selection);
     },
 
     getRecipes: function(){
@@ -75,7 +94,13 @@ var controller = {
 
 	clearSelections: function(){
 		model.clearSelections();
-	}
+	},
+
+    initStorage: function() {
+        if (!localStorage.selections) {
+            localStorage.selection = JSON.stringify([]);
+        }
+    }
 };
 
 
@@ -165,6 +190,7 @@ var view = {
 
 view.setUpEventListeners();
 controller.getRecipes();
+controller.initStorage();
 
 
 
