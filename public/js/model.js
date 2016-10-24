@@ -17,7 +17,7 @@ var model = {
 		    url: url,
 		    data: data,
 		    success: function (res){    
-               view.render(res)
+               view.render(JSON.parse(res));
 		    }
         });
 	},

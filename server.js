@@ -1,7 +1,8 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var routes = require('./routes/index');
+var index = require('./routes/index');
+var selections = require('./routes/selections');
 
 // body parser
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -16,7 +17,8 @@ app.set('view engine', 'handlebars');
 app.use(express.static(__dirname + '/public'));
 
 // routes
-app.use('/', routes);
+app.use('/', index);
+app.use('/', selections);
 
 // 404 catch-all handler 
 app.use(function(req, res, next){
